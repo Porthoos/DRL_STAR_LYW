@@ -101,11 +101,13 @@ class STAR_RIS_Env(gym.Env):
         ## should be: N reflection phase shift, N reflection amplitude, N two value discrete transmission action,
         ##            M*K BS phase shift for each user, M*K amplitude for each user
         self.action_dim = 3 * self.N + 2 * self.M * self.K
+
         # self.action_num = 4
         # self.action_array = np.ones(self.action_dim) * self.action_num
         # self.action_space = spaces.MultiDiscrete(self.action_array)
         self.action_space = spaces.Box(low=0, high=1,
                                         shape=(self.action_dim,), dtype=np.float32)
+
         # The observation will be the coordinate of the agent
         # this can be described both by Discrete and Box space
         ## CSI information, real and imag
@@ -119,6 +121,7 @@ class STAR_RIS_Env(gym.Env):
         d_B_R = np.linalg.norm(self.P_BS - self.P_R) # distance
         PL_B_R_line = 10 ** (-30 / 10) * (d_B_R ** (-2.2)) # calculate pathloss
         # AOA/AOD
+        # TODO why z/(x^2+y^2)^0.5
         azimuth_B_R_varphi_A = (self.P_R[1] - self.P_BS[1]) / np.sqrt((self.P_R[0] - self.P_BS[0]) ** 2 + (self.P_R[1] - self.P_BS[1]) ** 2)
         azimuth_B_R_varphi_D = np.sqrt(1-azimuth_B_R_varphi_A**2)
         elevation_B_R_psi_A = (self.P_R[2] - self.P_BS[2]) / np.sqrt((self.P_R[0] - self.P_BS[0]) ** 2 + (self.P_R[1] - self.P_BS[1]) ** 2)
@@ -274,6 +277,7 @@ class STAR_RIS_Env(gym.Env):
         self.Theta_eye_T = np.eye(self.N) * self.theta_T
 
         # BS beamforming w
+        # TODO how BS beamforming
         w_theta = action[3*self.N:3*self.N+self.M*self.K] * math.pi
         w_beta = (action[3*self.N+self.M*self.K:3*self.N+2*self.M*self.K] + 1)/2 * self.power_unit
         w_array = np.cos(w_theta) * w_beta + np.sin(w_theta) * w_beta * 1j

@@ -1,14 +1,18 @@
+import stable_baselines3.common.utils
+from torch.utils import tensorboard
+
 from STAR_RIS_ES import STAR_RIS_Env
 import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.ppo.policies import MlpPolicy
 from stable_baselines3.common.evaluation import evaluate_policy
+from torch.utils.tensorboard import SummaryWriter
 
 # env = gym.make('CartPole-v1')
 # env = gym.make('custom_env-v0')
 env = STAR_RIS_Env()
-
-model = PPO(MlpPolicy, env, verbose=0)
+# logger = stable_baselines3.common.utils.configure_logger(verbose=1, tensorboard_log="StableBseline/PPO")
+model = PPO(MlpPolicy, env, verbose=0, tensorboard_log="StableBseline/PPO")
 
 def evaluate(model, num_episodes=100):
     """
@@ -52,3 +56,6 @@ model.learn(total_timesteps=10000)
 mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=100)
 
 print(f"mean_reward after training:{mean_reward:.2f} +/- {std_reward:.2f}")
+
+print(model.predict(env.get_state()))
+print(model.get_parameters())
