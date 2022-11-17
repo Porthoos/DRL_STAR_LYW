@@ -95,7 +95,7 @@ for i in range(10):
     print()
 print()
 
-# determain the T coefficient based on R coefficient
+# determine the T coefficient based on R coefficient
 action_T = copy.deepcopy(action[2*10:3*10])
 action_T[action_T >= 0] = 1 * math.pi/2
 action_T[action_T >= 0] = 1 * math.pi/2

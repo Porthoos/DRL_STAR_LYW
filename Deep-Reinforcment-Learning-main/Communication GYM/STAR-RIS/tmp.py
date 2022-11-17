@@ -5,7 +5,6 @@ import copy
 
 import numpy.random
 import numpy as np
-from sklearn.cluster import KMeans
 import os
 os.environ["OMP_NUM_THREADS"] = '2'
 
@@ -58,7 +57,7 @@ def evaluateThreeSteps(BSPosition, userPosition, RISPosition):
         #     tmpPosition = randomMove(randomMove(randomMove(userPosition)))
         #     loc += np.array(getLoc(tmpPosition, RISPosition, BSPosition))/np.array([100,100])
         a, b, c = 0.7, 0.2, 0.1
-        for j in range(1000):
+        for j in range(100):
             tmpPosition = randomMove(userPosition)
             # loc.append(getLoc(tmpPosition, RISPosition, BSPosition))
             loc += np.array(getLoc(tmpPosition, RISPosition, BSPosition))/np.array([100/a,100/a])
@@ -89,11 +88,12 @@ RISPosition = [100,100]
 
 countA = 0
 countB = 0
-model = KMeans(n_clusters=2)
-for i in range(100):
-    RA = evaluateOneStep(BSPosition, userPosition, RISPosition)
-    RB = evaluateThreeSteps(BSPosition, userPosition, RISPosition)
-    # print(RA, RB)
-    countA += (RA>RB)*(RA-RB)
-    countB += (RB>RA)*(RB-RA)
-print(countA, countB)
+for p in range(10):
+    countA, countB = 0, 0
+    for i in range(100):
+        RA = evaluateOneStep(BSPosition, userPosition, RISPosition)
+        RB = evaluateThreeSteps(BSPosition, userPosition, RISPosition)
+        # print(RA, RB)
+        countA += (RA>RB)
+        countB += (RB>RA)
+    print(countA, countB)

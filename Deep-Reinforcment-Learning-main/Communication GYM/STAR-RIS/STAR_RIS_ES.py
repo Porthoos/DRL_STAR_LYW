@@ -269,6 +269,7 @@ class STAR_RIS_Env(gym.Env):
 
         # determain the T coefficient based on R coefficient
         action_T = copy.deepcopy(action[2*self.N:3*self.N])
+        # TODO alway +pi/2???
         action_T[action_T >= 0] = 1 * math.pi/2
         action_T[action_T >= 0] = 1 * math.pi/2
         New_theta_pi_T = New_theta_pi_R + action_T
