@@ -57,5 +57,6 @@ mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=100)
 
 print(f"mean_reward after training:{mean_reward:.2f} +/- {std_reward:.2f}")
 
-print(model.predict(env.get_state()))
-print(model.get_parameters())
+env_tmp = STAR_RIS_Env()
+print(model.predict(env_tmp.get_state()))
+# print(model.get_parameters())

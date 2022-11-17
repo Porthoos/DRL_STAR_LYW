@@ -257,7 +257,7 @@ class STAR_RIS_Env(gym.Env):
         state[2 * (self.N*self.M + self.K*self.M) : 2 * (self.N*self.M + self.K*self.M + self.N*self.K)] = H_R_K_state * self.scale
         return state
 
-    def step(self,action):
+    def step(self, action):
         # calculate R coefficient
         action = action.reshape(-1)
         New_theta_pi_R = action[0:self.N] * math.pi # theta in radian system
@@ -301,7 +301,7 @@ class STAR_RIS_Env(gym.Env):
         return np.array([next_state]).astype(np.float32), reward, done, info,
 
 
-    def reset(self):
+    def reset(self, *args, **kwargs):
         """
         Important: the observation must be a numpy array
         :return: (np.array)
