@@ -24,6 +24,7 @@ class My_Env(gym.Env):
     def __init__(self):
         super(My_Env, self).__init__()
 
+        self.scale = 10000
         self.K = 6    #total users
 
         self.M = 4                  #antenna number
@@ -125,8 +126,14 @@ class My_Env(gym.Env):
 
     #TODO get the observation environment
     def get_state(self):
-
-        return
+        CSI_B_K_state = self.CSI_B_K.ravel()
+        CSI_R_K_state = self.CSI_R_K.ravel()
+        CSI_B_R_state = self.CSI_B_R.ravel()
+        CSI_B_K_info = np.append(np.real(CSI_B_K_state), np.imag(CSI_B_K_state))
+        CSI_R_K_info = np.append(np.real(CSI_R_K_state), np.imag(CSI_R_K_state))
+        CSI_B_R_info = np.append(np.real(CSI_B_R_state), np.imag(CSI_B_R_state))
+        #TODO need confirmation
+        return np.append([CSI_B_R_info*self.scale, CSI_B_K_info*self.scale, CSI_R_K_info*self.scale])
 
     #TODO user random move
     def user_move(self):
