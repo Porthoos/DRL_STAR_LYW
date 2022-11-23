@@ -87,7 +87,7 @@ class My_Env(gym.Env):
         # self.P_KT_list[2, :] = 0 #T user hight
         # self.P_KR_list_initial = copy.deepcopy(self.P_KR_list)
         # self.P_KT_list_initial = copy.deepcopy(self.P_KT_list)
-        self.P_K_list = np.random.normal(scale=3, size=(3, self.K)) + 3
+        self.P_K_list = np.random.normal(scale=3, size=(3, self.K))
         self.P_K_list[3, :] = 0
         self.P_K_list_initial = copy.deepcopy(self.P_K_list)
         self.t = 0
