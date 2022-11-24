@@ -24,7 +24,6 @@ class My_Env(gym.Env):
     def __init__(self):
         super(My_Env, self).__init__()
 
-        self.scale = 10000
         self.K = 6    #total users
 
         self.M = 4                  #antenna number
@@ -41,23 +40,9 @@ class My_Env(gym.Env):
 
         self.W_list = np.ones(shape=(self.M, self.K)) + 0 * 1j
 
-        #ndarray for saving CSI at each fading block t, randomly initialized, BS to KR, BS to KT, STAR-RIS to KR, STAR-RIS to KT, and BS to STAR-RIS
-        # self.H_B_KR = np.random.normal(scale=1, size=(self.M, self.KR)) + np.random.normal(scale=1, size=(self.M, self.KR)) * 1j
-        # self.H_B_KT = np.random.normal(scale=1, size=(self.M, self.KT)) + np.random.normal(scale=1, size=(self.M, self.KT)) * 1j
-        # self.H_R_KR = np.random.normal(scale=1, size=(self.N, self.KR)) + np.random.normal(scale=1, size=(self.N, self.KR)) * 1j
-        # self.H_R_KT = np.random.normal(scale=1, size=(self.N, self.KT)) + np.random.normal(scale=1, size=(self.N, self.KT)) * 1j
-        # self.H_B_R = np.random.normal(scale=1, size=(self.N, self.M)) + np.random.normal(scale=1, size=(self.N, self.M)) * 1j
-
         self.CSI_B_K = np.random.normal(scale=1, size=(self.M, self.K)) + np.random.normal(scale=1, size=(self.M, self.K)) * 1j
         self.CSI_R_K = np.random.normal(scale=1, size=(self.N, self.K)) + np.random.normal(scale=1, size=(self.N, self.K)) * 1j
         self.CSI_B_R = np.random.normal(scale=1, size=(self.M, self.N)) + np.random.normal(scale=1, size=(self.M, self.N)) * 1j
-
-        # random fading matrix for all time slots
-        # self.G_B_KR = np.random.normal(scale=1, size=(self.M, self.KR, self.T)) + np.random.normal(scale=1, size=(self.M, self.KR, self.T)) * 1j
-        # self.G_B_KT = np.random.normal(scale=1, size=(self.M, self.KT, self.T)) + np.random.normal(scale=1, size=(self.M, self.KT, self.T)) * 1j
-        # self.G_R_KR = np.random.normal(scale=1, size=(self.N, self.KR, self.T)) + np.random.normal(scale=1, size=(self.N, self.KR, self.T)) * 1j
-        # self.G_R_KT = np.random.normal(scale=1, size=(self.N, self.KT, self.T)) + np.random.normal(scale=1, size=(self.N, self.KT, self.T)) * 1j
-        # self.G_B_R = np.random.normal(scale=1, size=(self.N, self.M, self.T)) + np.random.normal(scale=1, size=(self.N, self.M, self.T)) * 1j
 
         self.FD_B_K = np.random.normal(scale=1, size=(self.M, self.K, self.T)) + np.random.normal(scale=1, size=(self.M, self.K, self.T)) * 1j
         self.FD_R_K = np.random.normal(scale=1, size=(self.N, self.K, self.T)) + np.random.normal(scale=1, size=(self.N, self.K, self.T)) * 1j
@@ -66,27 +51,17 @@ class My_Env(gym.Env):
         # fading intensity
         self.fading_scale_BS = 0.1
         self.fading_scale_RIS = 0.2
-        # self.G_B_KR = self.fading_scale_BS * self.G_B_KR
-        # self.G_B_KT = self.fading_scale_BS * self.G_B_KT
-        # self.G_R_KR = self.fading_scale_RIS  * self.G_R_KR
-        # self.G_R_KT = self.fading_scale_RIS  * self.G_R_KT
-        # self.G_B_R = self.fading_scale_RIS  * self.G_B_R
         self.FD_B_K = self.fading_scale_BS * self.FD_B_K
         self.FD_R_K = self.fading_scale_RIS * self.FD_R_K
         self.FD_B_R = self.fading_scale_RIS * self.FD_B_R #TODO should be RIS fading scale?
         self.Rice = 5 # Rician factor
+        self.scale = 10000
 
         # positions
         self.BS_position = [2000, 2000, 5]
         self.STAR_position = [0, 0, 200]
         self.link_position = [0, 0, 0]
         self.type = np.zeros(shape=(1, self.K))
-        # self.P_KR_list = np.random.normal(scale=3, size=(3, self.KR)) + 3
-        # self.P_KT_list = np.random.normal(scale=3, size=(3, self.KT)) - 3
-        # self.P_KR_list[2, :] = 0 #R user hight
-        # self.P_KT_list[2, :] = 0 #T user hight
-        # self.P_KR_list_initial = copy.deepcopy(self.P_KR_list)
-        # self.P_KT_list_initial = copy.deepcopy(self.P_KT_list)
         self.P_K_list = np.random.normal(scale=3, size=(3, self.K))
         self.P_K_list[3, :] = 0
         self.P_K_list_initial = copy.deepcopy(self.P_K_list)
@@ -108,6 +83,7 @@ class My_Env(gym.Env):
         # x y z position for STAR_RIS, number of linked user, move up / down
         self.action_dim = 3 * self.N + 2 * self.M * self.K + 2 + 1 + 1
         self.action_space = spaces.Box(low=0, high=1, shape=(self.action_dim,), dtype=np.float32)
+        # BS to user CSI, STAR-RIS element to user CSI, BS to STAR-RIS element CSI
         self.num_states = 2*self.M * self.K + 2*self.N * self.K + 2*self.M*self.N
         self.observation_space = spaces.Box(low=0, high=100, shape=(self.num_states,), dtype=np.float32)
 
@@ -116,7 +92,11 @@ class My_Env(gym.Env):
 
     #TODO calculate CSI information
     def calculate_CSI(self):
+        # calculate pathloss from BS to STAR-RIS
+        distance_B_R = np.sqrt((self.BS_position[0]-self.STAR_position[0])**2 + (self.BS_position[1]-self.STAR_position[1])**2 + (self.BS_position[2]-self.STAR_position[2])**2)
+        pathloss_B_R = 10 ** (-30 / 10) * (distance_B_R ** (-2.2))
 
+        # calculate DOD
         return
 
     #TODO calculate data rate for each user
