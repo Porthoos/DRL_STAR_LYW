@@ -122,9 +122,13 @@ class STAR_RIS_Env(gym.Env):
         PL_B_R_line = 10 ** (-30 / 10) * (d_B_R ** (-2.2)) # calculate pathloss
         # AOA/AOD
         # TODO why z/(x^2+y^2)^0.5
+        # sine beta
         azimuth_B_R_varphi_A = (self.P_R[1] - self.P_BS[1]) / np.sqrt((self.P_R[0] - self.P_BS[0]) ** 2 + (self.P_R[1] - self.P_BS[1]) ** 2)
+        # cosine beta
         azimuth_B_R_varphi_D = np.sqrt(1-azimuth_B_R_varphi_A**2)
+        # sine phi
         elevation_B_R_psi_A = (self.P_R[2] - self.P_BS[2]) / np.sqrt((self.P_R[0] - self.P_BS[0]) ** 2 + (self.P_R[1] - self.P_BS[1]) ** 2)
+        # cosine phi
         elevation_B_R_psi_A_cos = np.sqrt(1-elevation_B_R_psi_A**2)
         a_R = np.ones(self.N) + 0*1j
         a_B = np.ones(self.M) + 0*1j
@@ -136,9 +140,9 @@ class STAR_RIS_Env(gym.Env):
             a_B[m] = (real + 1j * imag)
 
         for n in range(self.N):
-            real = np.cos(2*math.pi * (n - 1 + 1) * (int(n/self.Nx)*azimuth_B_R_varphi_A*elevation_B_R_psi_A+(n-int(n/self.Nx)*self.Nx)*elevation_B_R_psi_A*elevation_B_R_psi_A_cos))  # +1是因为计算机从0开始计数而element从1开始
+            real = np.cos(2*math.pi * (n - 1 + 1) * (int(n/self.Nx)*azimuth_B_R_varphi_A*elevation_B_R_psi_A+(n-int(n/self.Nx)*self.Nx)*elevation_B_R_psi_A*elevation_B_R_psi_A_cos))
             imag = np.sin(2*math.pi * (n - 1 + 1) * (int(n/self.Nx)*azimuth_B_R_varphi_A*elevation_B_R_psi_A+(n-int(n/self.Nx)*self.Nx)*elevation_B_R_psi_A*elevation_B_R_psi_A_cos))
-            a_R[n] =  (real + 1j * imag)
+            a_R[n] = (real + 1j * imag)
 
         a_R = np.mat(a_R).conj().T
         a_B = np.mat(a_B)
