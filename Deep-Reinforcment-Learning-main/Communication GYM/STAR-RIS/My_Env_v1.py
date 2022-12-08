@@ -129,8 +129,12 @@ class My_Env(gym.Env):
         self.CSI_B_R = np.sqrt(pathloss_B_R) * (np.sqrt(self.Rice / (1 + self.Rice)) * B_R_LOS + np.sqrt(1 / (1 + self.Rice)) * B_R_NLOS)
 
         for i in range(self.K):
-            distance_B_K = max(1, np.linalg.norm(self.P_K_list[:, i].T - self.BS_position))
-            distance_R_K = max(1, np.linalg.norm(self.P_K_list[:, i].T - self.STAR_position))
+            distance_B_K = np.linalg.norm(self.P_K_list[:, i].T - self.BS_position)
+            distance_R_K = np.linalg.norm(self.P_K_list[:, i].T - self.STAR_position)
+
+            ## punish user on same line with STAR-RIS
+            if self.type[i] == 0:
+                self.data_rate_list -= 100
 
             pathloss_B_K = 10**(-30/10)*(distance_B_K**(-3.5))
             pathloss_R_K = 10**(-30/10)*(distance_R_K**(-3.5))
@@ -188,14 +192,21 @@ class My_Env(gym.Env):
     # 1 represents reflection
     # -1 represents transmission
     def divide(self):
+        a = self.link_position[1]
+        b = -self.link_position[0]
+        c = (self.STAR_position[0]+self.link_position[0]) * self.STAR_position[1] - self.STAR_position[0] * (self.STAR_position[1]+self.link_position[1])
         for i in range(self.K):
-            if ((self.P_K_list[0][i] - self.STAR_position[0]) / (self.link_position[0] - self.STAR_position[0]) -
-                (self.P_K_list[1][i] - self.STAR_position[1]) / (self.link_position[1] - self.STAR_position[1])) * \
-                ((self.BS_position[0] - self.STAR_position[0]) / (self.link_position[0] - self.STAR_position[0]) -
-                 (self.BS_position[1] - self.STAR_position[1]) / (self.link_position[1] - self.STAR_position[1])) >= 0:
+            # if ((self.P_K_list[0][i] - self.STAR_position[0]) / (self.link_position[0] - self.STAR_position[0]) -
+            #     (self.P_K_list[1][i] - self.STAR_position[1]) / (self.link_position[1] - self.STAR_position[1])) * \
+            #     ((self.BS_position[0] - self.STAR_position[0]) / (self.link_position[0] - self.STAR_position[0]) -
+            #      (self.BS_position[1] - self.STAR_position[1]) / (self.link_position[1] - self.STAR_position[1])) >= 0:
+            #     self.type[i] = 1
+            if (a*self.BS_position[0] + b*self.BS_position[1] + c) * (a*self.P_K_list[0][i] + b*self.P_K_list[1][i] + c) > 0:
                 self.type[i] = 1
-            else:
+            elif (a*self.BS_position[0] + b*self.BS_position[1] + c) * (a*self.P_K_list[0][i] + b*self.P_K_list[1][i] + c) < 0:
                 self.type[i] = -1
+            else:
+                self.type[i] = 0
 
 
     #TODO step function
@@ -221,7 +232,7 @@ class My_Env(gym.Env):
         self.W_list = np.reshape(w_array, (self.M, self.K))
 
         # STAR-RIS position and face direction
-        self.STAR_position = [action[3*self.N+2*self.M*self.K]*100, action[3*self.N+2*self.M*self.K+1]*100, 200]
+        self.STAR_position = [action[3*self.N+2*self.M*self.K]*100, action[3*self.N+2*self.M*self.K+1]*100, self.STAR_position[2]]
         x_value = (action[3*self.N+2*self.M*self.K+2] - 0.5) * 2
         self.link_position = [x_value, np.sqrt(1-x_value**2)]
 
@@ -243,7 +254,9 @@ class My_Env(gym.Env):
 
     #TODO reset the environmrnt, user position, time, observation state, STAR position???
     def reset(self, *args, **kwargs):
-        self.P_K_list = copy.deepcopy(self.P_K_list_initial)
+        # self.P_K_list = copy.deepcopy(self.P_K_list_initial)
+        self.P_K_list = np.random.normal(scale=3, size=(3, self.K))
+        self.P_K_list[2, :] = 0
         state = self.get_state()
         self.t = 0
         return np.array([state]).astype(np.float32)

@@ -217,7 +217,7 @@ class My_Env(gym.Env):
         self.W_list = np.reshape(w_array, (self.M, self.K))
 
         # STAR-RIS position and face direction
-        self.STAR_position = [action[3*self.N+2*self.M*self.K]*100, action[3*self.N+2*self.M*self.K+1]*100, 200]
+        self.STAR_position = [action[3*self.N+2*self.M*self.K]*100, action[3*self.N+2*self.M*self.K+1]*100, self.STAR_position[2]]
 
         self.divide()
         self.calculate_datarate()

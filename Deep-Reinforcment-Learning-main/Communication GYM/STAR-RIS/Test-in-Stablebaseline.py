@@ -4,7 +4,7 @@ import math
 import stable_baselines3.common.utils
 from torch.utils import tensorboard
 
-from My_Env_v2 import My_Env
+from My_Env_v1 import My_Env
 from STAR_RIS_ES import STAR_RIS_Env
 import numpy as np
 from stable_baselines3 import PPO
@@ -56,10 +56,10 @@ def evaluate(model, num_episodes=100):
 # print(f"mean_reward befroe training:{mean_reward:.2f} +/- {std_reward:.2f}")
 
 # Train the agent for 10000 steps
-model.learn(total_timesteps=10000000)
+model.learn(total_timesteps=5000000)
 # Evaluate the trained agent
 mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=100)
-model.save('PPO model')
+model.save('models/MyEnv_PPO/test_env_3')
 print(f"mean_reward after training:{mean_reward:.2f} +/- {std_reward:.2f}")
 
 
